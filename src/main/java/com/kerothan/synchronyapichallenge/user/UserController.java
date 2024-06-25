@@ -27,7 +27,7 @@ class UserDataController {
     @GetMapping("/profile")
     User profile(@RequestHeader("Authorization") String authstring) { return userService.findByUsername(authstring); }
 
-    @PutMapping("/users/{id}")
+    @PutMapping("/users")
     User replaceUserData(@RequestBody User newUserData, @RequestHeader("Authorization") String authstring) { return userService.updateUser(authstring, newUserData); }
 
     @DeleteMapping("/users")
