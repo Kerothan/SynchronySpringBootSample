@@ -27,9 +27,6 @@ import java.util.*;
 @Service
 public class UserDataService {
 
-    @Value("${imgur.client-id}")
-    private String clientId;
-
     private final UserDataRepository repository;
 
     private final RestTemplate restTemplate;
@@ -50,15 +47,16 @@ public class UserDataService {
     User newUser(User newUserData) {
         String passEncode = encoder.encode(newUserData.getPassword());
         newUserData.setPassword(passEncode);
-        return repository.save(newUserData);
+        repository.save(newUserData);
+        newUserData.setPassword("****");
+        return newUserData;
     }
 
     // Find Single User
-    User findUserDataById(Long id) {return repository.findById(id)
-            .orElseThrow(() -> new UserDataNotFoundException(id));}
-
     User findByUsername(String authstring) {
-        return authenticateUser(authstring);
+        User user = authenticateUser(authstring);
+        user.setPassword("****");
+        return user;
     }
 
     User authenticateUser(String authstring) {
@@ -82,7 +80,9 @@ public class UserDataService {
         user.setEmail(newUserData.getEmail());
         user.setPassword(encoder.encode(newUserData.getPassword()));
         user.setUsername(newUserData.getUsername());
-        return repository.save(user);
+        repository.save(user);
+        user.setPassword("****");
+        return user;
     }
 
     public ResponseEntity<String> newImage(MultipartFile file, String authstring) {
@@ -144,6 +144,10 @@ public class UserDataService {
     }
 
     // Delete Single User
-    void deleteUserData(long id) { repository.deleteById(id); }
+    void deleteUserData(String authstring) {
+        User user = authenticateUser(authstring);
+        Long id = user.getUserId();
+        repository.deleteById(id);
+    }
 
 }
